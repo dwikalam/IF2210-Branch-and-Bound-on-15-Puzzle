@@ -3,10 +3,10 @@ from copy import copy
 
 class node:
     def __init__(self, initializedNode = None):
-        self.__matrix = np.array([[0, 0, 0, 0],
-                                 [0, 0, 0, 0],
-                                 [0, 0, 0, 0],
-                                 [0, 0, 0, 0]])
+        self.__matrix = np.array([ [0, 0, 0, 0],
+                                   [0, 0, 0, 0],
+                                   [0, 0, 0, 0],
+                                   [0, 0, 0, 0]  ])
 
         self.__blankPos = { "row" : 0, 
                             "col" : 0 }
@@ -21,6 +21,7 @@ class node:
         return cls(childNode)
 
     def __swapBlank(self, moveDirection):
+        # Initializing variables
         blankRow = self.__blankPos["row"]
         blankCol = self.__blankPos["col"]
         rowToSwap = blankRow
@@ -38,6 +39,7 @@ class node:
         elif (moveDirection == "UP"):
             rowToSwap -= 1
 
+        # Swapping blank-cell with cell-to-swap
         blankCellVal = self.__matrix[blankRow][blankCol]
 
         self.__matrix[blankRow][blankCol] = self.__matrix[rowToSwap][colToSwap]
