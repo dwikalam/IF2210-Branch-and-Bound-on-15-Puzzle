@@ -16,23 +16,33 @@ class node(object):
             self.__blankPos = { "row" : None, 
                                 "col" : None }
             self.__branchLevel = None
-            self.__totalCellInWrongPlace = None
+            self.__cost = None
         
         else:
             self.__parentNode = initializedNode.__parentNode
             self.__matrix = deepcopy(initializedNode.__matrix)
             self.__blankPos = deepcopy(initializedNode.__blankPos)
             self.__branchLevel = initializedNode.__branchLevel
-            self.__totalCellInWrongPlace = initializedNode.__totalCellInWrongPlace
+            self.__cost = initializedNode.__cost
 
     @classmethod
-    def create(cls, parentNode, matrix, blankPos, branchLevel):
+    def create(cls, parentNode, matrix):
         initNode = node()
-        initNode.__parentNode = deepcopy(parentNode)
+        initNode.__parentNode = parentNode
         initNode.__matrix = deepcopy(matrix)
-        initNode.__blankPos = blankPos
-        initNode.__branchLevel = branchLevel
-        initNode.__calcTotalCellInWrongPlace()
+
+        for row in range (node.TotalRow):
+            for col in range (node.TotalCol):
+                if (initNode.__matrix[row][col] == node.BlankVal):
+                    initNode.__blankPos["row"] = row
+                    initNode.__blankPos["col"] = col
+                
+        if (parentNode):
+            initNode.__branchLevel = parentNode.__branchLevel + 1
+        else:
+            initNode.__branchLevel = 0
+
+        initNode.__calcCost()
 
         return cls(initNode)
 
@@ -60,7 +70,7 @@ class node(object):
             if (not childNodeTwoPredecessors or not childNode.__isEqual(childNodeTwoPredecessors)):
                 childNode.__parentNode = parentNode
                 childNode.__branchLevel += 1
-                childNode.__calcTotalCellInWrongPlace()
+                childNode.__calcCost()
                 return cls(childNode)
 
         return cls()
@@ -93,23 +103,25 @@ class node(object):
         self.__blankPos["row"] = rowToSwap
         self.__blankPos["col"] = colToSwap
 
-    def __isEqual(self, node):
-        for row in range (4):
-            for col in range (4):
-                if (self.__matrix[row][col] != node.__matrix[row][col]):
+    def __isEqual(self, otherNode):
+        for row in range (node.TotalRow):
+            for col in range (node.TotalCol):
+                if (self.__matrix[row][col] != otherNode.__matrix[row][col]):
                     return False
     
         return True
 
-    def __calcTotalCellInWrongPlace(self):
-        totalRow = 4
-        totalCol = 4
-        self.__totalCellInWrongPlace = 0
-        for row in range(totalRow):
-            for col in range(totalCol):
-                cellValGoal = 1 + col + totalCol * row
+    def __calcCost(self):
+        f_val = self.__branchLevel
+
+        g_val = 0
+        for row in range(node.TotalRow):
+            for col in range(node.TotalCol):
+                cellValGoal = 1 + col + node.TotalCol * row
                 if (self.__matrix[row][col] != self.BlankVal and self.__matrix[row][col] != cellValGoal):
-                    self.__totalCellInWrongPlace += 1
+                    g_val += 1
+        
+        self.__cost = f_val + g_val
 
     def isGoal(self):
         # Return true if this node/puzzle configuration is the same as desired puzzle configuration
@@ -134,10 +146,7 @@ class node(object):
         return self.__blankPos[key]
     
     def getCost(self):
-        return self.__branchLevel + self.__totalCellInWrongPlace
-
-    def getTotalCellInWrongPlace(self):
-        return self.__totalCellInWrongPlace
+        return self.__cost
 
     def getParentNode(self):
         return self.__parentNode

@@ -22,37 +22,26 @@ class puzzle:
                             [None, None, None, None],
                             [None, None, None, None],
                             [None, None, None, None]])
-        blankPos = {}
-        branchLevel = 0
 
         if (not pathFile):
             elmtList = random.sample(range(1, 17), 16)
-            for row in range(4):
-                for col in range(4):
+            for row in range(node.TotalRow):
+                for col in range(node.TotalCol):
                     matrix[row][col] = elmtList.pop(0)
-                    if (matrix[row][col] == 16):
-                        blankPos["row"] = row
-                        blankPos["col"] = col
             
         else:
             file = open(pathFile, 'r')
             row = 0
-            for line in file:
-                col = 0
-                for elmt in line.split():
-                    matrix[row][col] = int(elmt)
-                    if (matrix[row][col] == 16):
-                        blankPos["row"] = row
-                        blankPos["col"] = col
-                    
-                    col += 1
+            for rowElmts in file:
+                matrix[row] = [int(elmt) for elmt in rowElmts.split()]
                 row += 1
 
-        rootNode = node.create(parentNode, matrix, blankPos, branchLevel)
+        rootNode = node.create(parentNode, matrix)
         return cls(rootNode)
 
     def solve(self):
         startTime = time()
+        
         self.__calculateKurangValues()
         if (self.__kurangTotalPlusX % 2 == 0):
             self.__enqueueNode(self.__rootNode)
@@ -80,21 +69,14 @@ class puzzle:
         # which the value is lesser but the position is greater than cell being processed
 
         # sum of kurang function and value of X will be calculated as well
-        maxRow = 4
-        maxCol = 4
-        for row in range(maxRow):
-            for col in range(maxCol):
+        for row in range(node.TotalRow):
+            for col in range(node.TotalCol):
+                val = self.__rootNode.at(row, col)
                 if (row <= 1):
                     kurangCounter = self.__rootNode.at(row, col) - 1
-                    val = self.__rootNode.at(row, col)
 
-                    lastRow = row + 1
-                    lastCol = col
-                
-                    for rowToCheck in range (lastRow):
-                        if (lastRow == 2):
-                            idx_in_array1D = row * maxCol + col
-                            lastCol = abs(maxCol - idx_in_array1D * rowToCheck)
+                    for rowToCheck in range (row + 1):
+                        lastCol = col*(1-row+rowToCheck) + 4*(row-rowToCheck)
                         for colToCheck in range (lastCol):
                             valToCheck = self.__rootNode.at(rowToCheck, colToCheck)
                             if (valToCheck < val):
@@ -105,14 +87,13 @@ class puzzle:
 
                 elif (row > 1):
                     kurangCounter = 0
-                    val = self.__rootNode.at(row, col)
 
                     startRow = row + (int)(col/3)
                     startCol = (col + 1) % 4
                     rowIterateCounter = 0
-                    for rowToCheck in range (startRow, 4):
+                    for rowToCheck in range (startRow, node.TotalRow):
                         startCol *= (1 - rowIterateCounter)  
-                        for colToCheck in range (startCol, 4):
+                        for colToCheck in range (startCol, node.TotalCol):
                             valToCheck = self.__rootNode.at(rowToCheck, colToCheck)
                             if (valToCheck < val):
                                 kurangCounter += 1
