@@ -26,7 +26,7 @@ class node(object):
             self.__cost = initializedNode.__cost
 
     @classmethod
-    def create(cls, parentNode, matrix):
+    def create(cls, matrix, parentNode = None):
         initNode = node()
         initNode.__parentNode = parentNode
         initNode.__matrix = deepcopy(matrix)

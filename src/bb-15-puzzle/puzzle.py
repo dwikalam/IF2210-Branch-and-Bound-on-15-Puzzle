@@ -1,8 +1,6 @@
 import numpy as np
 from time import time
 import random
-
-from py import process
 from node import node
 
 class puzzle:
@@ -17,7 +15,6 @@ class puzzle:
 
     @classmethod
     def initializePuzzle(cls, pathFile = None):
-        parentNode = None
         matrix = np.array([ [None, None, None, None],
                             [None, None, None, None],
                             [None, None, None, None],
@@ -36,7 +33,7 @@ class puzzle:
                 matrix[row] = [int(elmt) for elmt in rowElmts.split()]
                 row += 1
 
-        rootNode = node.create(parentNode, matrix)
+        rootNode = node.create(matrix)
         return cls(rootNode)
 
     def solve(self):
